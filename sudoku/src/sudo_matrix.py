@@ -1,5 +1,6 @@
 import json
 
+from profilepoint.activity import profile
 from sudo_row import Row
 from sudo_column import Column
 from sudo_minimatrix import MiniMatrix
@@ -29,33 +30,40 @@ class Matrix:
         return columns
     
     def getMiniMatrices(self):
-        matrices = []
-        for i in range(3):
-            for j in range(3):
-                matrixValues = []
-                for row in range(3):
-                    for col in range(3):
-                        matrixValues.append(self.data[i*3 + row][j * 3 + col])
-                
-                matrices.append(MiniMatrix(matrixValues))
-        
+        with profile("getMiniMatrices"):
+            matrices = []
+            for i in range(3):
+                for j in range(3):
+                    matrixValues = []
+                    for row in range(3):
+                        for col in range(3):
+                            matrixValues.append(self.data[i*3 + row][j * 3 + col])
+                    
+                    matrices.append(MiniMatrix(matrixValues))
+            
         return matrices
 
     def validate(self):
-        for row in self.getRows():
-            if not row.validate():
-                # print (f"Row failed to validate: {row}")
-                return False
+        with profile("Row Validation"):
+            rows = self.getRows()
+            for row in rows:
+                if not row.validate():
+                    # print (f"Row failed to validate: {row}")
+                    return False
             
-        for column in self.getColumns():
-            if not column.validate():
-                # print (f"Column failed to validate: {column}")
-                return False
+        with profile("Column Validation"):
+            columns = self.getColumns()
+            for column in columns:
+                if not column.validate():
+                    # print (f"Column failed to validate: {column}")
+                    return False
             
-        for miniMatrix in self.getMiniMatrices():
-            if not miniMatrix.validate():
-                # print (f"Minimatrix failed to validate: {miniMatrix}")
-                return False
+        with profile("Mini Matrix Validation"):
+            miniMatrices = self.getMiniMatrices()
+            for miniMatrix in miniMatrices:
+                if not miniMatrix.validate():
+                    # print (f"Minimatrix failed to validate: {miniMatrix}")
+                    return False
             
         return True
     
