@@ -1,5 +1,7 @@
 from profilepoint.stopwatch import Stopwatch
 
+# Main RAII Class to profile code.
+# Its subclasses Activity and Action are responsible to maintain the stack of Stopwatches
 class ProfilePoint:
     def __init__(self, name):
         self.name = name
@@ -12,11 +14,6 @@ class ProfilePoint:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.stop()
-        
-        # self.render()
-        # print(f"Exiting profilepoint: {self}")
-        
-        # print(f"[{self.name}] End profiling. Elapsed time: {self.stop_watch.elapsed_time():.4f} seconds")
         
         if exc_type:
             print(f"[{self.name}] Exception occurred: {exc_value}")
@@ -32,6 +29,3 @@ class ProfilePoint:
     def getWatch(self):
         return self.stop_watch
     
-    # # def render(self):
-    #     raise NotImplementedError("Subclasses must implement the render method")
-        
