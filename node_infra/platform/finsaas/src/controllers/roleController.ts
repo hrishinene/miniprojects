@@ -1,6 +1,6 @@
-import * as service from '../services/roleService';
 import { Request, Response } from 'express';
 import { Role } from '../models/role';
+import * as service from '../services/roleService';
 
 export const enlist = async (req: Request, res: Response) => {
     try {
