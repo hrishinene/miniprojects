@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
 import tenantRoutes from './routes/tenantRoutes';
+import roleRoutes from './routes/roleRoutes';
 import { logger } from './middlewares/logger';
 import { setupSwagger } from './swagger';
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(logger);
 app.use('/api/users', userRoutes);
 app.use('/api/tenants', tenantRoutes);
+app.use('/api/roles', roleRoutes);
 
 // Swagger docs
 setupSwagger(app);

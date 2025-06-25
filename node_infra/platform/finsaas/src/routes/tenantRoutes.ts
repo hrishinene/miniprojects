@@ -27,9 +27,48 @@
  */
 
 import { Router } from 'express';
+import { basicAuth } from '../middlewares/basicAuth';
 import * as controller from '../controllers/tenantController';
+import { AuthRequest } from '../types/authRequest';
 
 const router = Router();
+
+/**
+ * @swagger
+ * /api/tenants/secure-data:
+ *   get:
+ *     summary: Returns secured data for authenticated user
+ *     tags: [Tenants]
+ *     description: Requires Basic Authentication
+ *     security:
+ *       - basicAuth: []
+ *     responses:
+ *       200:
+ *         description: Successful response with username
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hello, alice
+ *       401:
+ *         description: Unauthorized - invalid or missing credentials
+ */
+router.get('/secure-data', basicAuth, (req, res) => {
+    // log request details
+  console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
+  console.log(`Request Headers: ${JSON.stringify(req.headers)}`);
+
+  const user = (req as AuthRequest).user;
+
+  if (user && user.username) {
+    res.json({ message: `Hello, ${user.username}` });
+  } else {
+    res.status(401).json({ message: 'Unauthorized: user not found' });
+  }
+});
 
 /**
  * @swagger

@@ -14,6 +14,19 @@ const options: swaggerJSDoc.Options = {
     servers: [
       {
         url: 'http://localhost:3000',
+      }
+    ],
+    components: {
+      securitySchemes: {
+        basicAuth: {
+          type: 'http',
+          scheme: 'basic',
+        },
+      },
+    },
+    security: [
+      {
+        basicAuth: [],
       },
     ],
   },

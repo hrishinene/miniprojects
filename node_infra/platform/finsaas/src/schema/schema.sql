@@ -1,10 +1,8 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Run pre-process script
+\i 'preProcess.sql'
+-- Run sql files from model directory
+\i 'models/tenants.sql'
+\i 'models/users.sql'
 
-CREATE TABLE tenants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT NOT NULL UNIQUE,
-  domain TEXT NOT NULL UNIQUE,
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+-- Run post-process script
+\i 'postProcess.sql'
