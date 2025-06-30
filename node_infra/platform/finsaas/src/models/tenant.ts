@@ -1,5 +1,16 @@
 import { pool } from '../db';
 
+// SQL to create the tenants table matching the Tenant interface:
+// 
+// CREATE TABLE tenants (
+//   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//   name VARCHAR(255) NOT NULL,
+//   domain VARCHAR(255) NOT NULL,
+//   is_active BOOLEAN NOT NULL DEFAULT TRUE,
+//   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+//   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+// );
+
 export interface Tenant {
   id: string;
   name: string;

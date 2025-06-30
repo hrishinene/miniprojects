@@ -4,6 +4,7 @@
 -- Run sql files from model directory
 \i 'models/tenants.sql'
 \i 'models/users.sql'
+\i 'models/finstruments.sql'
 
 -- Run post-process script
 \i 'postProcess.sql'

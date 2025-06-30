@@ -12,8 +12,12 @@ export const enlist = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-  const newUser = req.body;
-  // Simulate user creation logic - TODO Call Service
-  newUser.id = Date.now(); // Mock ID generation
-  res.status(201).json(newUser);
+  try {
+    const newUser = req.body;
+    const user = await service.create(newUser);
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
 }
