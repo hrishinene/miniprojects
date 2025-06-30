@@ -5,6 +5,7 @@
 \i 'models/tenants.sql'
 \i 'models/users.sql'
 \i 'models/finstruments.sql'
+\i 'models/finstitutions.sql'
 
 -- Run post-process script
 \i 'postProcess.sql'
