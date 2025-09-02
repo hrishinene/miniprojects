@@ -11,7 +11,8 @@ export const enlist = async (): Promise<Finstrument[]> => {
 // This function should be implemented to handle finstrument creation logic, such as saving to a database.
 export const create = async (newFinstrument: Finstrument): Promise<Finstrument> => {
   // Save to database name, description, type, homepageUrl, healthUrl, secretKey, configUrl, isActive
-  const query = `INSERT INTO finstruments (name, description, type, logoUrl, homepageUrl, healthUrl, secretKey, configUrl, isActive)
+  const query = `
+  INSERT INTO finstruments (name, description, type, logoUrl, homepageUrl, healthUrl, secretKey, configUrl, isActive)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                  RETURNING *`;
   const values = [

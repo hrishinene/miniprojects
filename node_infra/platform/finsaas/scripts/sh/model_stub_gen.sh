@@ -18,14 +18,14 @@ MODEL_NAME=$1
 MODEL_NAME_CAPITALIZED=$(echo "$MODEL_NAME" | sed 's/^\(.\)/\U\1/')
 
 # define paths to the source files
-MODEL_FILE="src/models/User.ts"
+MODEL_FILE="src/models/user.ts"
 ROUTE_FILE="src/routes/userRoutes.ts"
 CONTROLLER_FILE="src/controllers/userController.ts"
 SERVICE_FILE="src/services/userService.ts"
 SCHEMA_FILE="src/schema/models/users.sql"
 
 # define the new file names
-NEW_MODEL_FILE="src/models/${MODEL_NAME_CAPITALIZED}.ts"
+NEW_MODEL_FILE="src/models/${MODEL_NAME}.ts"
 NEW_ROUTE_FILE="src/routes/${MODEL_NAME}Routes.ts"
 NEW_CONTROLLER_FILE="src/controllers/${MODEL_NAME}Controller.ts"
 NEW_SERVICE_FILE="src/services/${MODEL_NAME}Service.ts"

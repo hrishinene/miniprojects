@@ -6,6 +6,9 @@
 \i 'models/users.sql'
 \i 'models/finstruments.sql'
 \i 'models/finstitutions.sql'
+\i 'models/billings.sql'
+\i 'models/audits.sql'
+\i 'models/subscriptions.sql'
 
 -- Run post-process script
 \i 'postProcess.sql'

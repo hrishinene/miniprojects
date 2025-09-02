@@ -44,6 +44,7 @@ const router = express.Router();
  *   get:
  *     summary: Returns a list of users
  *     tags: [Users]
+ *     x-weight: 1
  *     responses:
  *       200:
  *         description: A list of users

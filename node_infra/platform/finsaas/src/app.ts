@@ -3,10 +3,15 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
 import finstrumentRoutes from './routes/finstrumentRoutes';
 import finstitutionRoutes from './routes/finstitutionRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
+import billingRoutes from './routes/billingRoutes';
+import auditRoutes from './routes/auditRoutes';
 import tenantRoutes from './routes/tenantRoutes';
 import roleRoutes from './routes/roleRoutes';
-import { logger } from './middlewares/logger';
+// import { logger } from './middlewares/logger';
+import { profilePoint } from './middlewares/profilepoint';
 import { setupSwagger } from './swagger';
+import { basicAuth } from './middlewares/basicAuth';
 
 
 dotenv.config();
@@ -16,10 +21,15 @@ const app = express();
 
 
 app.use(express.json());
-app.use(logger);
-app.use('/api/users', userRoutes);
+// app.use(logger);
+app.use(profilePoint);
+
+app.use('/api/users', basicAuth, userRoutes);
 app.use('/api/finstruments', finstrumentRoutes);
 app.use('/api/finstitutions', finstitutionRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/billing', billingRoutes);
+app.use('/api/audit', auditRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/roles', roleRoutes);
 

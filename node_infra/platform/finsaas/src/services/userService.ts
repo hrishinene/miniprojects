@@ -1,5 +1,5 @@
 import { pool } from "../db";
-import { User } from "../models/User";
+import { User } from "../models/user";
 
 export const enlist = async (): Promise<User[]> => {
   // Fetch the user from DB
