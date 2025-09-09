@@ -1,4 +1,4 @@
-#!/home/user/hrishi/personal/learning/python/plot3d/.venv/bin/python3
+#!/Users/hrishinene/github/miniprojects/experiments/python/plot3d/.venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys
