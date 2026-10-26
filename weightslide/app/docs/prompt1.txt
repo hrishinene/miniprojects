@@ -1,0 +1,479 @@
+# Build Weight Slide — Minimalist Weight-Loss App for Android and iOS
+
+Act as a senior Flutter developer and build a complete, working, cross-platform mobile application named **Weight Slide**.
+
+The application must run on Android and iOS from a single Flutter codebase.
+
+Do not merely provide an implementation plan or code snippets. Inspect the existing project, implement the application, run available checks and tests, and fix errors.
+
+If the project is empty, create the necessary Flutter structure. If an existing project is present, inspect it first and preserve any useful existing configuration.
+
+## 1. Product philosophy
+
+Weight Slide is a deliberately simple, minimalist, old-fashioned weight-management utility.
+
+Its purpose is to turn a person's weight trend into a small set of concrete food and lifestyle rules to follow.
+
+The user enters their weight. The application displays the current weight trend, a graph containing five reference lines, and the rules currently applicable.
+
+The application is NOT a conventional calorie-counting or fitness application.
+
+Do not implement:
+- Calorie or nutrition databases.
+- Food logging or meal photography.
+- Exercise tracking.
+- Social features, leaderboards or achievements.
+- Accounts, registration or cloud synchronization.
+- AI-generated diet advice.
+- Advertisements or subscriptions.
+
+Version 1 should be small, reliable, easy to understand, and usable without an internet connection.
+
+## 2. Technology and architecture
+
+Use:
+- Flutter and Dart.
+- Material 3 with a restrained, minimalist visual design.
+- A maintained local persistence solution appropriate for a small offline-first application.
+- A maintained Flutter charting library, or a custom painter if that results in a simpler and more reliable graph.
+- Automated unit tests for the calculation and line-crossing logic.
+
+Before choosing dependencies, inspect the project's current Flutter and Dart versions and use compatible, maintained packages.
+
+Keep business logic separate from UI code.
+
+Suggested separation:
+- Models: journey, weight entry, daily weight and rule configuration.
+- Services: weight calculations, reference-line calculations, crossing detection and persistence.
+- Screens: onboarding, daily dashboard, graph, rule configuration and settings.
+
+Use a simple architecture that is easy to maintain. Avoid unnecessary abstractions.
+
+Persist all essential information locally so that it survives app restarts.
+
+## 3. First launch and journey setup
+
+On the first launch, show a short setup screen.
+
+Collect:
+1. Starting weight in kilograms.
+2. Journey start date, defaulting to today.
+3. Target weight loss per week in kilograms, defaulting to 0.5 kg.
+
+The weekly target must be configurable.
+
+For the initial version, accept a positive target rate and validate the input sensibly. Use kilograms consistently throughout the calculations and display.
+
+Create a new journey after the user confirms the setup.
+
+The starting weight is the official weight for the journey's first day, even if no actual measurement has yet been entered that day.
+
+Set the initial active rule level to Level 3 because the starting weight lies on the central target line. Do not generate a crossing event merely because the journey starts on this line.
+
+## 4. Daily weight entry
+
+The main screen must allow the user to enter their weight for the current local calendar date.
+
+Requirements:
+
+- Allow multiple weight entries on the same day.
+- The official weight for a date is the LOWEST reading entered for that date.
+- Display the lowest reading as that day's official weight.
+- Show the other readings for today if useful, but do not use them individually in the trend calculation.
+- Do not allow users to add, edit or delete entries for historical dates.
+- Do not provide a mechanism to change the date of an entry to a past date.
+- Validate weight input and reject zero, negative, nonnumeric or otherwise unreasonable values.
+- Show the current official weight, the seven-day moving average, and the active rule level.
+- Display the current day's rules immediately after a weight is entered.
+
+Multiple entries on one day must not create duplicate crossing events simply because the same state is recalculated.
+
+When a new reading is higher than today's existing minimum, retain the previous minimum as the official weight. When a new reading is lower, update today's official weight and recalculate the current trend and applicable level.
+
+Do not modify historical measurements.
+
+## 5. Missing weight entries
+
+For calculation purposes, if no new weight has been entered on a date, carry forward the previous date's official weight.
+
+For example:
+
+| Date | Entry | Official daily weight |
+|---|---|---:|
+| Monday | 92.0, 91.8 | 91.8 kg |
+| Tuesday | 92.1 | 92.1 kg |
+| Wednesday | No entry | 92.1 kg |
+| Thursday | 91.9, 91.6 | 91.6 kg |
+
+The starting weight seeds the journey's first day.
+
+Generate missing-day values deterministically when calculating the trend. Do not create fake user-entered records for these dates.
+
+Use local calendar dates consistently. Handle date boundaries correctly and avoid errors caused by UTC conversions or daylight-saving changes.
+
+## 6. Seven-day moving average
+
+Use the seven-day moving average as the weight trend for line-crossing calculations.
+
+For each date:
+
+Daily official weight = the lowest recorded weight for that date, or the previous official weight if no entry exists.
+
+Seven-day moving average = arithmetic mean of the official daily weights for that date and the preceding six calendar dates.
+
+The starting weight seeds the first date, and the carried-forward values ensure the seven-day calculation is available from the beginning of the journey.
+
+Use full floating-point precision internally. Round only for display, normally to one decimal place.
+
+Do not calculate crossings from rounded display values.
+
+Recalculate today's moving average whenever today's official minimum changes.
+
+## 7. The five reference lines
+
+This is the central feature of Weight Slide.
+
+The user configures one weekly target rate. The same value determines both the downward slope of the central target line and the vertical spacing between adjacent reference lines.
+
+Let:
+
+- W0 = starting weight in kg.
+- r = configured target weight loss in kg per week.
+- d = number of calendar days since the journey start date.
+- n = reference-line number, from 1 to 5.
+
+Calculate each reference line as:
+
+L(n, d) = W0 - r × d / 7 + (n - 3) × r / 2
+
+This produces five parallel lines:
+
+| Line | Position relative to target |
+|---|---|
+| Line 1 | Target minus r |
+| Line 2 | Target minus r/2 |
+| Line 3 | Central target line |
+| Line 4 | Target plus r/2 |
+| Line 5 | Target plus r |
+
+Line 1 is the lowest-weight line. Line 5 is the highest-weight line.
+
+Example: starting weight 92 kg and weekly target 0.5 kg.
+
+At the start of the journey:
+
+- Line 1 = 91.0 kg.
+- Line 2 = 91.5 kg.
+- Line 3 = 92.0 kg.
+- Line 4 = 92.5 kg.
+- Line 5 = 93.0 kg.
+
+After 28 days, all five lines are 2 kg lower than their respective starting positions.
+
+Changing the configured weekly target changes both the slope and the spacing of the lines.
+
+Do not hard-code the 0.5 kg target. Read the saved configuration.
+
+## 8. Critical rule-level algorithm: event-driven line crossing
+
+Implement this requirement carefully. Do not replace it with a simple calculation of which band currently contains the weight.
+
+The active rule level is determined by the most recent reference-line crossing event.
+
+The weight trend may hover around a line and cross it repeatedly. Repeated crossings of the same line must continue to select the same rule level. Merely moving into or out of a region between two lines must never trigger a level change.
+
+For each reference line, calculate the signed distance:
+
+D(n, d) = seven-day moving average on date d - L(n, d)
+
+A crossing occurs when the signed distance changes from one side of that reference line to the other.
+
+Requirements:
+
+1. Compare consecutive evaluated trend states, including the movement of the reference lines themselves.
+2. Detect a genuine side-to-side crossing. Touching or remaining on a line must not create repeated events.
+3. A crossing from either direction selects the crossed line's number as the new active level.
+4. Crossing Line 3 sets the active level to 3 whether the trend is moving upwards or downwards.
+5. Crossing the same line repeatedly continues to set the same level. It must not add another restriction or toggle rules.
+6. If there is no crossing, retain the current active level.
+7. Do not determine the level simply from the current position of the weight relative to the lines.
+8. If the trend crosses multiple lines between consecutive evaluations, detect the crossings in their chronological order using linear interpolation of the signed distances, and apply them in that order. The last crossing determines the resulting active level.
+9. Use a small, documented numerical tolerance for floating-point equality. Equality must not cause an event on every recalculation.
+10. The first journey day initializes Level 3 without a crossing event.
+
+Example:
+
+- The trend crosses Line 3: active level becomes 3.
+- It crosses Line 3 again from the opposite direction: active level remains 3.
+- It later crosses Line 4: active level becomes 4.
+- It later crosses Line 2: active level becomes 2.
+- It then fluctuates within the region between Lines 2 and 3 without crossing either line: active level remains 2.
+
+Do not use a band-based state machine.
+
+### Same-day recalculation
+
+Today's minimum can change several times as the user enters additional readings.
+
+Recalculate the current trend and applicable level when today's official minimum changes, but preserve correct crossing semantics. Do not create duplicate events when recalculating an unchanged state.
+
+Persist sufficient evaluation state to prevent duplicate events across app restarts.
+
+A lower minimum entered later today may legitimately change the trend and cause a crossing. Handle this deterministically.
+
+### Persisted crossing history
+
+Store crossing events with at least:
+- Journey identifier.
+- Reference-line number.
+- Crossing direction.
+- Evaluation date and time.
+- Relevant trend and reference-line values.
+- Resulting active level.
+
+Use this history to explain why a rule level is currently active and to reconstruct the current state if needed.
+
+## 9. Cumulative rules
+
+Rules are cumulative.
+
+If the active level is 3, Rules 1, 2 and 3 apply.
+
+If the active level is 5, Rules 1 through 5 apply.
+
+If the active level becomes 2, only Rules 1 and 2 apply.
+
+The active level is determined by the most recent crossing event, not by the current band.
+
+Each rule belongs to a specific line and is configured separately.
+
+Provide editable default rule descriptions:
+
+Level 1 — Foundation
+"Drink 2 litres of water daily. Avoid second servings unless genuinely hungry."
+
+Level 2 — Meal timing
+"Finish dinner by 7:30 pm on at least 5 days per week."
+
+Level 3 — Eating structure
+"Eat only during 3 planned eating blocks per day."
+
+Level 4 — Sweets
+"No sweets, desserts or sugar-sweetened drinks."
+
+Level 5 — Planned meals
+"No unplanned snacks. Eat three planned, balanced meals with appropriate portions."
+
+These are initial behavioural defaults, not guaranteed weight-loss interventions. Display them as user-configurable habits rather than medical prescriptions.
+
+Do not add a starvation diet, liquid-only diet, fasting prescription or other extreme restriction.
+
+## 10. Rule configuration
+
+Provide a simple settings screen where users can edit:
+
+- Weekly target loss in kg.
+- Rule description for each of the five levels.
+- Units, if unit switching can be implemented reliably; otherwise use kg only in Version 1.
+
+Changing a rule's description must not alter the active level or crossing history.
+
+Changing the weekly target changes the slope and spacing of the reference lines. Since this changes the geometry of the trend, provide a clear confirmation explaining that the trajectory will be recalculated from the journey's original starting weight and date.
+
+For this first version, use the following simple policy: changing the weekly target resets the crossing evaluation baseline from the current date, retains the current active level, and uses the newly calculated lines for subsequent crossing detection. Do not retroactively invent new crossing events from the changed geometry.
+
+Persist all configuration changes.
+
+## 11. Main dashboard
+
+Design a quiet, uncluttered main screen.
+
+Suggested content, in priority order:
+
+1. App name: Weight Slide.
+2. Today's date.
+3. Today's official weight, displayed prominently.
+4. A simple weight-entry control.
+5. Seven-day moving average.
+6. Active level, such as "Level 3 of 5".
+7. Today's cumulative rules in a clear checklist or numbered list.
+8. A compact link to the graph.
+9. A link to settings.
+
+Make it obvious which rules apply today.
+
+Do not show unnecessary metrics, calorie estimates, BMI, exercise statistics, motivational quotes or distracting animations.
+
+Use a readable font, comfortable touch targets, good contrast and responsive layouts.
+
+## 12. Graph screen
+
+Implement a graph with:
+
+- X-axis: calendar date.
+- Y-axis: weight in kilograms.
+- Five parallel reference lines.
+- Actual daily official weights.
+- Seven-day moving-average trend.
+- A clear distinction between measured/carried-forward daily values and the moving-average series.
+- A visual indicator of the current active level.
+- A legend identifying Lines 1–5.
+- Weekly and monthly viewing options.
+- Automatic scaling that keeps the relevant data readable.
+- Date and weight labels on tap, if supported by the selected chart implementation.
+
+The graph should clearly show the five reference lines and the moving average. Avoid excessive decoration.
+
+Do not draw a false continuous line for actual measurements without accounting for missing entries: carried-forward values should be represented honestly, preferably using a distinct visual treatment or legend.
+
+Ensure the graph remains legible on typical phone screens.
+
+## 13. History and settings
+
+Provide a minimal history view showing:
+- Date.
+- Official daily weight.
+- Whether the weight was entered or carried forward.
+- Seven-day moving average.
+- Active rule level.
+
+Historical data is read-only. Do not add historical editing controls.
+
+The user may view past days and see which rules applied at the time.
+
+## 14. Reset and restart
+
+Provide a "Start new journey" or "Reset journey" option in settings.
+
+Before proceeding, show a confirmation dialog explaining that a new journey will begin and asking the user to confirm.
+
+Preserve the previous journey as read-only history rather than silently deleting it.
+
+A new journey should have:
+- A new journey identifier.
+- A new starting weight.
+- A new start date.
+- A configurable weekly target.
+- Fresh reference lines.
+- Initial active Level 3.
+- A fresh crossing-event history.
+
+Ensure data from different journeys cannot accidentally mix.
+
+## 15. Data integrity and persistence
+
+Store enough data to reproduce the application's behaviour after a restart.
+
+At minimum, persist:
+- Journey identifiers and start dates.
+- Starting weight and target rate.
+- All weight readings with timestamps.
+- Official daily weights or enough data to derive them.
+- Rule configurations.
+- Active level.
+- Crossing events.
+- Previous evaluated trend state needed for crossing detection.
+- Relevant evaluation dates.
+
+Use stable identifiers and explicit date handling.
+
+Never store only the rounded moving average if the exact underlying values are available.
+
+Do not silently reset a user's data after an app upgrade.
+
+## 16. Automated tests
+
+Write meaningful automated tests for the business logic.
+
+At minimum, cover the following.
+
+### Weight entry
+- The lowest of multiple daily readings is selected.
+- A higher subsequent reading does not replace the current day's minimum.
+- A lower subsequent reading updates the current day's minimum.
+- Historical entry modification is unavailable through the application logic.
+
+### Missing days
+- The previous official weight carries forward.
+- The starting weight seeds the first day.
+- Carried-forward values are included in the moving average.
+- Calendar-day calculations work correctly around month and year boundaries.
+
+### Moving average
+- Correct seven-day arithmetic mean.
+- Correct use of carried-forward values.
+- Internal precision is maintained.
+
+### Reference lines
+- Correct slope for a configured weekly target.
+- Correct offsets for all five lines.
+- Correct results after changing the weekly target.
+
+### Crossing detection
+- Crossing each of the five lines selects the correct level.
+- Crossing from above and crossing from below both select the crossed line's level.
+- Repeated crossings of the same line do not toggle the level.
+- Movement within a band without a crossing does not change the level.
+- Touching a line without passing through it does not repeatedly generate events.
+- Multiple crossings between evaluations are ordered correctly.
+- Floating-point equality does not create duplicate crossings.
+- Re-evaluating an unchanged state does not create duplicate events.
+- Multiple entries on the same date are handled deterministically.
+- Restarting the app does not duplicate crossing events.
+- Initializing a journey at Line 3 does not create a crossing event.
+
+### Rules
+- Level 1 activates only Rule 1.
+- Level 3 activates Rules 1–3.
+- Level 5 activates Rules 1–5.
+- Returning to Level 2 removes the higher-level rules from today's plan.
+- Editing rule text does not modify the active level.
+
+### Journey management
+- A reset creates a distinct new journey.
+- Old journey history remains intact.
+- The new journey begins at Level 3.
+
+Use a deterministic test clock where required. Avoid tests that depend on the actual current date or time.
+
+## 17. Implementation workflow
+
+Work in the following order:
+
+1. Inspect the existing repository and Flutter environment.
+2. Establish or repair the application structure.
+3. Implement models and local persistence.
+4. Implement and test the weight calculation and line-crossing services.
+5. Implement journey setup and daily weight entry.
+6. Implement cumulative rules and configuration.
+7. Implement the dashboard and graph.
+8. Implement history and reset.
+9. Run formatting, static analysis and automated tests.
+10. Fix errors and review the complete application flow.
+
+Do not stop after implementing the dashboard or a static graph. The app must use real persisted data and real calculation logic.
+
+If a dependency or platform tool is unavailable, explain the limitation and continue with the parts that can be completed.
+
+## 18. Acceptance criteria
+
+The implementation is complete when:
+
+- A new user can set up a journey.
+- The user can enter today's weight multiple times.
+- The lowest daily reading is used.
+- Missing days carry forward the previous weight.
+- The seven-day moving average is calculated correctly.
+- Five correctly spaced parallel reference lines are displayed.
+- The active level changes only because of a genuine line-crossing event.
+- The correct cumulative rules are shown.
+- The configuration and weight history survive app restarts.
+- Historical entries cannot be edited.
+- The user can view weekly and monthly graphs.
+- A new journey can be created with confirmation while retaining the old journey.
+- Automated tests for the critical business logic pass.
+- The project passes `flutter analyze` without unresolved errors introduced by the implementation.
+
+At the end, provide a concise implementation summary, the important files created or modified, the dependencies added, the test results, and the exact commands needed to run the app on Android and iOS.
+
+Prioritize correctness, simplicity and maintainability over adding features beyond this specification.
