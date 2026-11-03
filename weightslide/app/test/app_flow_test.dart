@@ -35,19 +35,40 @@ void main() {
     expect(find.text('Weight Slide'), findsOneWidget);
     expect(find.text('92.0 kg'), findsWidgets);
     expect(find.text('Level 3 of 5'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Foundation'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Foundation'), findsOneWidget);
     expect(find.text('Sweets'), findsNothing);
 
+    await tester.ensureVisible(find.byType(TextField));
     await tester.enterText(find.byType(TextField), '0');
+    await tester.ensureVisible(find.text('Save weight'));
     await tester.tap(find.text('Save weight'));
     await tester.pumpAndSettle();
     expect(find.text('Weight must be greater than zero.'), findsOneWidget);
 
+    await tester.ensureVisible(find.byType(TextField));
     await tester.enterText(find.byType(TextField), '100');
+    await tester.ensureVisible(find.text('Save weight'));
     await tester.tap(find.text('Save weight'));
     await tester.pumpAndSettle();
-    expect(find.text('100.0 kg'), findsOneWidget);
-    expect(find.text('Level 5 of 5'), findsOneWidget);
+    expect(find.text('Save 100.0 kg for today?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(controller.activeDetails!.latest.officialKg, 92);
+
+    await tester.ensureVisible(find.text('Save weight'));
+    await tester.tap(find.text('Save weight'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(controller.activeDetails!.latest.officialKg, 100);
+    expect(controller.activeJourney!.activeLevel, 5);
+    expect(find.text('Gain so far 8.0 kg'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Planned meals'),
       300,
@@ -61,20 +82,32 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.enterText(find.byType(TextField), '101');
+    await tester.ensureVisible(find.text('Save weight'));
     await tester.tap(find.text('Save weight'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(controller.activeDetails!.latest.officialKg, 100);
     expect(
-      controller.activeDetails!.readingsOn(controller.today).map((reading) => reading.kg),
+      controller.activeDetails!
+          .readingsOn(controller.today)
+          .map((reading) => reading.kg),
       [100, 101],
     );
-    await tester.fling(
-      find.byType(Scrollable).first,
-      const Offset(0, 600),
-      2000,
-    );
+
+    await tester.ensureVisible(find.text('Remove last entry'));
+    await tester.tap(find.text('Remove last entry'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('lowest'), findsOneWidget);
+    expect(find.textContaining('Remove 101.0 kg'), findsOneWidget);
+    await tester.tap(find.text('Remove'));
+    await tester.pumpAndSettle();
+    expect(
+      controller.activeDetails!
+          .readingsOn(controller.today)
+          .map((reading) => reading.kg),
+      [100],
+    );
+    expect(controller.activeDetails!.latest.officialKg, 100);
 
     await tester.tap(find.byTooltip('Graph'));
     await tester.pumpAndSettle();
@@ -88,5 +121,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Entered'), findsOneWidget);
     expect(find.text('Level 5'), findsOneWidget);
+    expect(find.textContaining('lowest'), findsOneWidget);
+    expect(find.textContaining('101.0 kg'), findsNothing);
+    expect(find.text('Remove'), findsOneWidget);
   });
 }

@@ -128,6 +128,7 @@ class SqliteJourneyRepository implements JourneyRepository {
   Future<void> saveJourney(
     Journey journey, {
     List<CrossingEvent> newCrossings = const [],
+    bool replaceCrossings = false,
   }) async {
     await _database.transaction((txn) async {
       await txn.update(
@@ -136,6 +137,13 @@ class SqliteJourneyRepository implements JourneyRepository {
         where: 'id = ?',
         whereArgs: [journey.id],
       );
+      if (replaceCrossings) {
+        await txn.delete(
+          'crossings',
+          where: 'journey_id = ?',
+          whereArgs: [journey.id],
+        );
+      }
       for (final crossing in newCrossings) {
         await txn.insert('crossings', {
           'id': crossing.id,
@@ -182,6 +190,11 @@ class SqliteJourneyRepository implements JourneyRepository {
       'kg': reading.kg,
       'recorded_at': reading.recordedAt.toIso8601String(),
     });
+  }
+
+  @override
+  Future<void> deleteReading(String id) async {
+    await _database.delete('readings', where: 'id = ?', whereArgs: [id]);
   }
 
   @override

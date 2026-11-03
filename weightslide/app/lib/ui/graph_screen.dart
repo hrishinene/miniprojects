@@ -14,7 +14,7 @@ const List<Color> _lineColors = [
   Color(0xFF6B3A3A),
 ];
 
-const Color _averageColor = Color(0xFF1F6B4A);
+const Color _averageColor = Color(0xFF0C8F55);
 const Color _officialColor = Color(0xFF8A8A8A);
 
 enum _Span { week, month }
@@ -262,7 +262,7 @@ class _Legend extends StatelessWidget {
             color: _lineColors[line - 1],
             label: 'Line $line${line == activeLevel ? ' (active)' : ''}',
           ),
-        const _Swatch(color: _averageColor, label: 'Seven-day average'),
+        const _Swatch(color: _averageColor, label: 'Three-day average'),
         const _Swatch(color: _officialColor, label: 'Official weight'),
         const Text(
           'Dots are entered days. The dashed line carries the official weight forward when a day has no entry.',

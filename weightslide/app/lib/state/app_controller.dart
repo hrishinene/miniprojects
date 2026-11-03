@@ -73,7 +73,19 @@ class AppController extends ChangeNotifier {
     if (error != null) {
       return Future.value(error);
     }
-    return _run(() => engine.addReading(kilograms!));
+    return saveWeight(kilograms!);
+  }
+
+  Future<String?> saveWeight(double kilograms) {
+    final error = validateWeight(kilograms);
+    if (error != null) {
+      return Future.value(error);
+    }
+    return _run(() => engine.addReading(kilograms));
+  }
+
+  Future<String?> removeReading(String readingId) {
+    return _run(() => engine.removeReading(readingId));
   }
 
   Future<String?> changeWeeklyTarget(double weeklyTargetKg) {

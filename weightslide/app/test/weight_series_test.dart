@@ -49,7 +49,7 @@ void main() {
   });
 
   test(
-    'seven-day mean uses seeds and carried-forward weights at full precision',
+    'three-day mean uses seeds and carried-forward weights at full precision',
     () {
       final points = WeightSeries.build(
         start: LocalDate(2026, 1, 1),
@@ -66,15 +66,12 @@ void main() {
       );
 
       expect(points.first.movingAverageKg, 70);
-      expect(points[1].movingAverageKg, (70 * 6 + 71) / 7);
+      expect(points[1].movingAverageKg, (70 * 2 + 71) / 3);
       expect(
         points[1].movingAverageKg,
         isNot(double.parse(points[1].movingAverageKg.toStringAsFixed(1))),
       );
-      expect(
-        points.last.movingAverageKg,
-        (70 + 71 + 72 + 73 + 74 + 75 + 76) / 7,
-      );
+      expect(points.last.movingAverageKg, (74 + 75 + 76) / 3);
 
       final carried = WeightSeries.build(
         start: LocalDate(2026, 1, 1),
@@ -85,7 +82,7 @@ void main() {
           _reading(LocalDate(2026, 1, 3), 78),
         ],
       );
-      expect(carried[2].movingAverageKg, (80 * 6 + 78) / 7);
+      expect(carried[2].movingAverageKg, (80 + 80 + 78) / 3);
       expect(carried[1].measured, isFalse);
     },
   );

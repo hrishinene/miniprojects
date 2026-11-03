@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 ThemeData buildTheme() {
-  const ink = Color(0xFF1C1C1C);
-  const paper = Color(0xFFF6F4EF);
-  final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF2C4A3E),
-    brightness: Brightness.light,
-  );
+  const ink = Color(0xFF143028);
+  const paper = Color(0xFFF3FBF6);
+  const leaf = Color(0xFF0C8F55);
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: leaf,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: leaf,
+        onPrimary: const Color(0xFFFFFFFF),
+        primaryContainer: const Color(0xFFD7F5E6),
+        onPrimaryContainer: ink,
+      );
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
@@ -20,14 +27,16 @@ ThemeData buildTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(48),
+        backgroundColor: leaf,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(64, 48),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(48),
-        foregroundColor: ink,
+        minimumSize: const Size(64, 48),
+        foregroundColor: leaf,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     ),
@@ -45,7 +54,7 @@ ThemeData buildTheme() {
         fontSize: 48,
         height: 1.05,
         fontWeight: FontWeight.w600,
-        color: ink,
+        color: leaf,
       ),
       titleLarge: TextStyle(
         fontSize: 22,
@@ -61,7 +70,7 @@ ThemeData buildTheme() {
       bodyMedium: TextStyle(
         fontSize: 15,
         height: 1.4,
-        color: Color(0xFF3A3A3A),
+        color: Color(0xFF245043),
       ),
     ),
   );

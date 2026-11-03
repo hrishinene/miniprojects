@@ -188,9 +188,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              FilledButton(
-                onPressed: widget.controller.busy ? null : _saveTarget,
-                child: const Text('Update target'),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: widget.controller.busy ? null : _saveTarget,
+                  child: const Text('Update target'),
+                ),
               ),
               const SizedBox(height: 32),
               Text('Rules', style: Theme.of(context).textTheme.titleLarge),
@@ -210,9 +213,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
               ],
-              FilledButton(
-                onPressed: widget.controller.busy ? null : _saveRules,
-                child: const Text('Save rules'),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: widget.controller.busy ? null : _saveRules,
+                  child: const Text('Save rules'),
+                ),
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),
@@ -259,9 +265,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
               const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: widget.controller.busy ? null : _newJourney,
-                child: const Text('Start new journey'),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: widget.controller.busy ? null : _newJourney,
+                  child: const Text('Start new journey'),
+                ),
               ),
             ],
           ),

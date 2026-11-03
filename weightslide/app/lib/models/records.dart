@@ -13,6 +13,7 @@ class TrendSnapshot {
     required this.signedDistances,
     required this.activeLevel,
     required this.lastNonZeroSides,
+    this.averageWindowDays = 3,
   });
 
   final LocalDate date;
@@ -24,6 +25,12 @@ class TrendSnapshot {
   final int activeLevel;
   final List<LineSide?> lastNonZeroSides;
 
+  /// Days in the moving average that produced this snapshot.
+  ///
+  /// Older saved journeys omit this and are treated as the previous
+  /// seven-day window so the app can retarget them without a false crossing.
+  final int averageWindowDays;
+
   Map<String, dynamic> toJson() => {
     'date': date.toIso(),
     'officialKg': officialKg,
@@ -31,6 +38,7 @@ class TrendSnapshot {
     'signedDistances': signedDistances,
     'activeLevel': activeLevel,
     'lastNonZeroSides': [for (final side in lastNonZeroSides) side?.name],
+    'averageWindowDays': averageWindowDays,
   };
 
   factory TrendSnapshot.fromJson(Map<String, dynamic> json) {
@@ -47,6 +55,7 @@ class TrendSnapshot {
         for (final value in json['lastNonZeroSides'] as List<dynamic>)
           value == null ? null : LineSide.values.byName(value as String),
       ],
+      averageWindowDays: json['averageWindowDays'] as int? ?? 7,
     );
   }
 }

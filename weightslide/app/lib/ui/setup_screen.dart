@@ -109,11 +109,14 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: _pickDate,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text('Start date  ${formatDate(_startDate)}'),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: _pickDate,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Start date  ${formatDate(_startDate)}'),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -134,9 +137,12 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: widget.controller.busy ? null : _submit,
-            child: const Text('Create journey'),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: widget.controller.busy ? null : _submit,
+              child: const Text('Create journey'),
+            ),
           ),
         ],
       ),

@@ -22,6 +22,10 @@ class DailyPoint {
 class WeightSeries {
   const WeightSeries._();
 
+  /// Today and the two preceding days. Earlier days in the window use the
+  /// starting weight when the journey has not reached them yet.
+  static const int windowDays = 3;
+
   static Map<LocalDate, double> dailyMinimums(
     Iterable<WeightReading> readings,
   ) {
@@ -35,7 +39,7 @@ class WeightSeries {
     return minimums;
   }
 
-  /// Official weights from [start] through [through], plus a seven-day mean.
+  /// Official weights from [start] through [through], plus a three-day mean.
   ///
   /// Days before [start] contribute the starting weight to the window only.
   /// Those days are not returned and are not stored as readings. A day with
@@ -60,7 +64,7 @@ class WeightSeries {
       officials.add(official);
       final index = officials.length - 1;
       var sum = 0.0;
-      for (var age = 0; age < 7; age++) {
+      for (var age = 0; age < windowDays; age++) {
         final sampleIndex = index - age;
         sum += sampleIndex >= 0 ? officials[sampleIndex] : startingWeightKg;
       }
@@ -70,7 +74,7 @@ class WeightSeries {
           dayIndex: date.daysSince(start),
           officialKg: official,
           measured: measured != null,
-          movingAverageKg: sum / 7,
+          movingAverageKg: sum / windowDays,
         ),
       );
       previous = official;

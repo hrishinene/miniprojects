@@ -79,12 +79,16 @@ class MemoryRepository implements JourneyRepository {
   Future<void> saveJourney(
     Journey journey, {
     List<CrossingEvent> newCrossings = const [],
+    bool replaceCrossings = false,
   }) async {
     final index = _journeys.indexWhere((item) => item.id == journey.id);
     if (index < 0) {
       throw StateError('Unknown journey ${journey.id}');
     }
     _journeys[index] = journey;
+    if (replaceCrossings) {
+      _crossings.removeWhere((event) => event.journeyId == journey.id);
+    }
     _crossings.addAll(newCrossings);
   }
 
@@ -105,6 +109,11 @@ class MemoryRepository implements JourneyRepository {
   @override
   Future<void> insertReading(WeightReading reading) async {
     _readings.add(reading);
+  }
+
+  @override
+  Future<void> deleteReading(String id) async {
+    _readings.removeWhere((reading) => reading.id == id);
   }
 
   @override

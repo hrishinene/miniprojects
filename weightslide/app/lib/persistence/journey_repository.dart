@@ -12,11 +12,14 @@ abstract class JourneyRepository {
   Future<void> saveJourney(
     Journey journey, {
     List<CrossingEvent> newCrossings = const [],
+    bool replaceCrossings = false,
   });
 
   Future<List<WeightReading>> readingsFor(String journeyId);
 
   Future<void> insertReading(WeightReading reading);
+
+  Future<void> deleteReading(String id);
 
   Future<List<CrossingEvent>> crossingsFor(String journeyId);
 

@@ -22,6 +22,27 @@ String formatDate(LocalDate date) {
 
 String formatKg(double kilograms) => '${kilograms.toStringAsFixed(1)} kg';
 
+String formatLossSoFar(double lossKg) {
+  return _formatChange(lossKg, soFar: true);
+}
+
+String formatWeeklyPace(double weeklyLossKg) {
+  return _formatChange(weeklyLossKg, soFar: false);
+}
+
+String _formatChange(double lossKg, {required bool soFar}) {
+  final shown = lossKg.abs().toStringAsFixed(1);
+  if (shown == '0.0') {
+    return soFar ? 'No change so far' : 'Average weekly change 0.0 kg';
+  }
+  final direction = lossKg > 0 ? 'loss' : 'gain';
+  if (soFar) {
+    final word = lossKg > 0 ? 'Loss' : 'Gain';
+    return '$word so far $shown kg';
+  }
+  return 'Average weekly $direction $shown kg';
+}
+
 String formatTime(DateTime time) {
   final hour = time.hour.toString().padLeft(2, '0');
   final minute = time.minute.toString().padLeft(2, '0');
