@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f6f8;
+        margin: 0;
+        padding: 24px;
+        color: #263238;
+      }
+
+      .container {
+        max-width: 480px;
+        margin: 60px auto;
+        background: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        text-align: center;
+      }
+
+      h2 {
+        margin-top: 0;
+        color: #245b45;
+      }
+
+      p {
+        line-height: 1.6;
+      }
+
+      .message {
+        margin-top: 20px;
+      }
+
+      .footer {
+        margin-top: 32px;
+        font-size: 13px;
+        color: #667085;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2><?= organisationName ?></h2>
+
+      <h3><?= courseName ?></h3>
+
+      <div class="message">
+        <h3><?= pageTitle ?></h3>
+        <p><?= message ?></p>
+      </div>
+
+      <div class="footer">
+        <?= organisationName ?>
+      </div>
+    </div>
+  </body>
+</html>

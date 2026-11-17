@@ -132,6 +132,8 @@ class AppController extends ChangeNotifier {
       return null;
     } on WeightSlideException catch (error) {
       return error.message;
+    } catch (_) {
+      return 'Could not save. Try again.';
     } finally {
       busy = false;
       notifyListeners();

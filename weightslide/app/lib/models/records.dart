@@ -222,7 +222,7 @@ class IdSource {
 
   String next(String prefix) {
     _next += 1;
-    return '$prefix-$_next';
+    return '$prefix-${DateTime.now().microsecondsSinceEpoch}-$_next';
   }
 }
 

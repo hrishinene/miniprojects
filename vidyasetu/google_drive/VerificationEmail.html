@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:24px; font-family:Arial,sans-serif; color:#263238; background:#f5f6f8;">
+
+    <div style="max-width:560px; margin:20px auto; padding:32px; background:#ffffff; border-radius:10px;">
+
+      <h2 style="color:#245b45; margin-top:0;">
+        <?= organisationName ?>
+      </h2>
+
+      <h3><?= courseName ?></h3>
+
+      <p>Hello <?= participantName ?>,</p>
+
+      <p>
+        Thank you for registering for <strong><?= courseName ?></strong>.
+      </p>
+
+      <p>
+        Please verify your email address by clicking the button below.
+      </p>
+
+      <p style="text-align:center; margin:32px 0;">
+        <a href="<?= verificationUrl ?>"
+           style="display:inline-block; padding:14px 28px; background:#245b45; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:bold;">
+          Verify Email Address
+        </a>
+      </p>
+
+      <p>
+        This link is valid for <?= validityHours ?> hours.
+      </p>
+
+      <p>
+        If you did not register for this course, you can ignore this email.
+      </p>
+
+      <? if (supportEmail || supportContact) { ?>
+        <hr style="border:none; border-top:1px solid #eeeeee; margin:28px 0;">
+
+        <p style="font-size:13px; color:#667085;">
+          Need help?
+          <? if (supportEmail) { ?>
+            Email: <?= supportEmail ?>
+          <? } ?>
+          <? if (supportContact) { ?>
+            <br>Contact: <?= supportContact ?>
+          <? } ?>
+        </p>
+      <? } ?>
+
+      <p style="font-size:13px; color:#667085; margin-top:28px;">
+        Regards,<br>
+        <?= organisationName ?>
+      </p>
+
+    </div>
+  </body>
+</html>

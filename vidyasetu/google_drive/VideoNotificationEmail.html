@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+</head>
+
+<body style="
+  margin: 0;
+  padding: 24px;
+  background-color: #f5f6f8;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #333333;
+">
+
+  <div style="
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  ">
+
+    <!-- Organisation header -->
+    <div style="
+      padding: 24px;
+      text-align: center;
+      background-color: #ffffff;
+    ">
+
+      <? if (logoUrl) { ?>
+        <img
+          src="<?= logoUrl ?>"
+          alt="<?= organisationName ?>"
+          style="max-width: 160px; max-height: 70px; margin-bottom: 12px;"
+        >
+      <? } ?>
+
+      <div style="
+        font-size: 20px;
+        font-weight: bold;
+        color: #263b35;
+      ">
+        <?= organisationName ?>
+      </div>
+
+    </div>
+
+    <!-- Main content -->
+    <div style="padding: 28px 32px;">
+
+      <h2 style="
+        margin: 0 0 24px;
+        font-size: 22px;
+        font-weight: 600;
+        color: #263b35;
+      ">
+        Your course video is now available!
+      </h2>
+
+      <p>Hello <?= participantName ?>,</p>
+
+      <p>
+        A new video from your course
+        <strong><?= courseName ?></strong>
+        is now available for viewing.
+      </p>
+
+      <!-- Video details -->
+      <div style="
+        margin: 24px 0;
+        padding: 20px;
+        background-color: #f5f8f6;
+        border: 1px solid #e0e9e3;
+        border-radius: 6px;
+      ">
+
+        <div style="
+          font-size: 12px;
+          color: #66736c;
+          margin-bottom: 8px;
+        ">
+          VIDEO <?= videoNumber ?>
+        </div>
+
+        <div style="
+          font-size: 18px;
+          font-weight: bold;
+          color: #263b35;
+          margin-bottom: 18px;
+        ">
+          <?= videoName ?>
+        </div>
+
+        <a
+          href="<?= videoUrl ?>"
+          style="
+            display: inline-block;
+            padding: 12px 22px;
+            background-color: #356b50;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+          "
+        >
+          Open Video in Google Drive
+        </a>
+
+        <div style="
+          margin-top: 20px;
+          font-size: 13px;
+          color: #66736c;
+        ">
+          Available until:
+          <strong><?= expiryDateTime ?></strong>
+        </div>
+
+      </div>
+
+      <p>
+        Please watch the video within the availability period.
+        Access will automatically expire afterwards.
+      </p>
+
+      <p>
+        Happy learning!
+      </p>
+
+      <p style="margin-top: 28px;">
+        Regards,<br>
+        <strong><?= organisationName ?></strong>
+      </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="
+      padding: 20px 28px;
+      background-color: #f5f6f8;
+      border-top: 1px solid #e5e7eb;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #777777;
+      text-align: center;
+    ">
+
+      <? if (supportEmail) { ?>
+        Support:
+        <a href="mailto:<?= supportEmail ?>" style="color: #356b50;">
+          <?= supportEmail ?>
+        </a>
+        <br>
+      <? } ?>
+
+      <? if (supportContact) { ?>
+        <?= supportContact ?>
+        <br>
+      <? } ?>
+
+      Automated message from VidyaSetu
+
+    </div>
+
+  </div>
+
+</body>
+</html>
