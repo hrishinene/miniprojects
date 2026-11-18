@@ -53,7 +53,11 @@ function prepareVerificationRequest(rowNumber) {
       REGISTRATION_SPREADSHEET_ID
     );
 
-    const sheet = spreadsheet.getSheets()[0];
+    const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+    if (!sheet) {
+      throw new Error('Central Registration sheet not found.');
+    }
 
     const headers = sheet
       .getRange(1, 1, 1, sheet.getLastColumn())
@@ -130,7 +134,11 @@ function recordVerificationEmailSent(rowNumber, tokenHash) {
       REGISTRATION_SPREADSHEET_ID
     );
 
-    const sheet = spreadsheet.getSheets()[0];
+    const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+    if (!sheet) {
+      throw new Error('Central Registration sheet not found.');
+    }
 
     const headers = sheet
       .getRange(1, 1, 1, sheet.getLastColumn())
@@ -183,7 +191,12 @@ function verifyEnrolmentEmail(enrolmentId, token) {
     const spreadsheet = SpreadsheetApp.openById(
       REGISTRATION_SPREADSHEET_ID
     );
-    const sheet = spreadsheet.getSheets()[0];
+
+    const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+    if (!sheet) {
+      throw new Error('Central Registration sheet not found.');
+    }
 
     const values = sheet.getDataRange().getValues();
     const headers = values[0];
@@ -269,7 +282,11 @@ function sendVerificationEmail(rowNumber) {
   const spreadsheet = SpreadsheetApp.openById(
     REGISTRATION_SPREADSHEET_ID
   );
-  const sheet = spreadsheet.getSheets()[0];
+  const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+  if (!sheet) {
+    throw new Error('Central Registration sheet not found.');
+  }
 
   const headers = sheet.getRange(
     1, 1, 1, sheet.getLastColumn()
