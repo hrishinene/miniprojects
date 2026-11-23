@@ -359,3 +359,58 @@ function processGroupRegistrationSubmission(e) {
   };
 }
 
+
+function synchronisePaymentStatus() {
+  const spreadsheet = SpreadsheetApp.openById(
+    REGISTRATION_SPREADSHEET_ID
+  );
+
+  const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+  if (!sheet) {
+    throw new Error('Central Registration sheet not found.');
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+
+  const paymentColumn = headers.indexOf('PaymentVerified');
+  const emailColumn = headers.indexOf('EmailVerified');
+  const statusColumn = headers.indexOf('EnrolmentStatus');
+  const processedColumn = headers.indexOf('LastProcessed');
+
+  let updated = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+
+    if (!row[0]) continue;
+
+    let expectedStatus;
+
+    if (row[emailColumn] !== true) {
+      expectedStatus = 'PENDING_VERIFICATION';
+    } else if (row[paymentColumn] === true) {
+      expectedStatus = 'PAYMENT_VERIFIED';
+    } else if (row[paymentColumn] === false) {
+      expectedStatus = 'PAYMENT_REJECTED';
+    } else {
+      expectedStatus = 'PENDING_PAYMENT';
+    }
+
+    if (row[statusColumn] !== expectedStatus) {
+      sheet.getRange(i + 1, statusColumn + 1)
+        .setValue(expectedStatus);
+
+      sheet.getRange(i + 1, processedColumn + 1)
+        .setValue(new Date());
+
+      updated++;
+    }
+  }
+
+  Logger.log('Payment statuses synchronised: ' + updated);
+
+  return updated;
+}
+

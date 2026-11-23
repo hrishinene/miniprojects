@@ -5,6 +5,8 @@
 function runVideoAccessScheduler() {
   const now = new Date();
 
+  synchronisePaymentStatus();
+
   const enrolments = getRegistrations();
   const videos = getCourseVideos();
 
