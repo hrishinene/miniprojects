@@ -843,3 +843,8 @@ function testVideo2Schedule() {
   Logger.log('Simulated time: ' + new Date('2026-11-20T06:30:00Z'));
 }
 
+function testGetCourseVideos() {
+  const videos = getCourseVideos();
+
+  Logger.log(JSON.stringify(videos, null, 2));
+}

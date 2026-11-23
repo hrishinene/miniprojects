@@ -154,3 +154,44 @@ function shouldVideoBeAccessible(
     expiryAt: schedule.expiryAt
   };
 }
+
+
+/**
+ * Retrieves course videos in numerical sequence.
+ * Video filenames must begin with a number followed by a dash.
+ */
+function getCourseVideos() {
+  const folder = DriveApp.getFolderById(VIDEOS_FOLDER_ID);
+  const files = folder.getFiles();
+
+  const videos = [];
+
+  while (files.hasNext()) {
+    const file = files.next();
+    const name = file.getName();
+
+    const match = name.match(/^(\d+)-/);
+
+    if (match) {
+      videos.push({
+        videoNumber: Number(match[1]),
+        name: name,
+        id: file.getId()
+      });
+    }
+  }
+
+  videos.sort((a, b) => a.videoNumber - b.videoNumber);
+
+  // Ensure video numbers are unique.
+  for (let i = 1; i < videos.length; i++) {
+    if (videos[i].videoNumber === videos[i - 1].videoNumber) {
+      throw new Error(
+        'Duplicate video number: ' + videos[i].videoNumber
+      );
+    }
+  }
+
+  return videos;
+}
+

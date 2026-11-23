@@ -13,3 +13,5 @@ const REGISTRATION_SPREADSHEET_ID =
 
 const VERIFICATION_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbx-UJJ6Bz5TawL69RLyGTz2X046zFOQqnTYRlvNpHWQOYpBwJdeXOoAGjXrKFM9sPTjHg/exec';
+
+const VIDEOS_FOLDER_ID = '1aatDESI02ItYd3-QNRcTcoDBj7PPNrBS';
