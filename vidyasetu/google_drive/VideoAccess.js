@@ -86,12 +86,12 @@ function grantVideoAccess(enrolmentId, videoNumber) {
     }
   );
 
-  // Record the successful permission grant.
-  recordVideoAccessGranted_(
-    enrolmentId,
-    videoNumber,
-    videoFile.getId()
-  );
+  // // Record the successful permission grant.
+  // recordVideoAccessGranted_(
+  //   enrolmentId,
+  //   videoNumber,
+  //   videoFile.getId()
+  // );
 
   Logger.log(
     'Viewer access granted without Google notification: ' +
@@ -327,6 +327,13 @@ function checkVideoAccess(enrolmentId, videoNumber) {
  *
  * expectedAccess must be true or false.
  */
+
+/**
+ * Reconciles actual Drive access with the expected access state
+ * for one enrolment and one video.
+ *
+ * expectedAccess must be true or false.
+ */
 function reconcileVideoAccess(
   enrolmentId,
   videoNumber,
@@ -346,8 +353,6 @@ function reconcileVideoAccess(
     throw new Error('Enrolment not found: ' + enrolmentId);
   }
 
-  // An enrolment cannot receive access unless all
-  // three eligibility conditions are TRUE.
   const eligible =
     isEnrolmentEligibleForVideoAccess_(enrolment);
 
@@ -372,8 +377,13 @@ function reconcileVideoAccess(
     };
   }
 
+  let grantResult = null;
+
   if (expectedAccess) {
-    grantVideoAccess(enrolmentId, videoNumber);
+    grantResult = grantVideoAccess(
+      enrolmentId,
+      videoNumber
+    );
   } else {
     revokeVideoAccess(enrolmentId, videoNumber);
   }
@@ -386,6 +396,15 @@ function reconcileVideoAccess(
   if (verified !== expectedAccess) {
     throw new Error(
       'Permission reconciliation failed verification.'
+    );
+  }
+
+  // Record the grant only after successful verification.
+  if (expectedAccess) {
+    recordVideoAccessGranted_(
+      enrolmentId,
+      videoNumber,
+      grantResult.videoId
     );
   }
 
