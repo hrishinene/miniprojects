@@ -14,3 +14,6 @@ hs_err_pid*
 # Directories
 node_modules/
 dist/
+
+# Apps Script local project configuration
+vidyasetu/google_drive/.clasp.json
