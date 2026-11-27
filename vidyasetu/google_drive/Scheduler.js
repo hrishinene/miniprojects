@@ -3,6 +3,8 @@
  */
 
 function runVideoAccessScheduler() {
+  initialiseCourse();
+
   const now = new Date();
 
   synchronisePaymentStatus();

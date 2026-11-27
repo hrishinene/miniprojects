@@ -232,8 +232,7 @@ function revokeVideoAccess(enrolmentId, videoNumber) {
 function isEnrolmentEligibleForVideoAccess_(enrolment) {
   return (
     enrolment.emailVerified === true &&
-    enrolment.paymentVerified === true &&
-    enrolment.accessEnabled === true
+    enrolment.paymentVerified === true
   );
 }
 

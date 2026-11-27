@@ -39,7 +39,6 @@ function getRegistrations() {
 
         emailVerified: toNullableBoolean_(record['EmailVerified']),
         paymentVerified: toNullableBoolean_(record['PaymentVerified']),
-        accessEnabled: toNullableBoolean_(record['AccessEnabled']),
 
         verificationTokenHash: record['VerificationTokenHash'] || null,
         verificationExpiry: record['VerificationExpiry'] || null,
@@ -78,80 +77,93 @@ function initialiseEnrolment(
   lock.waitLock(30000);
 
   try {
-    const spreadsheet = SpreadsheetApp.openById(
-      REGISTRATION_SPREADSHEET_ID
-    );
-
-    const sheet = spreadsheet.getSheetByName('Form Responses 1');
-
-    if (!sheet) {
-      throw new Error('Central Registration sheet not found.');
-    }
-
-    const headers = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getValues()[0];
-
-    const column = {};
-
-    headers.forEach((header, index) => {
-      column[header] = index + 1;
-    });
-
-    if (rowNumber < 2 || rowNumber > sheet.getLastRow()) {
-      throw new Error('Invalid registration row: ' + rowNumber);
-    }
-
-    const enrolmentIdCell = sheet.getRange(
+    return initialiseEnrolmentWithLock_(
       rowNumber,
-      column['EnrolmentID']
+      registrationMode,
+      batchId
     );
-
-    const existingId = enrolmentIdCell.getValue();
-
-    if (existingId) {
-      Logger.log('Enrolment already initialised: ' + existingId);
-      return existingId;
-    }
-
-    const enrolmentId =
-      'VS-' + Utilities.getUuid()
-        .replace(/-/g, '')
-        .substring(0, 12)
-        .toUpperCase();
-
-    const values = {
-      EnrolmentID: enrolmentId,
-      RegistrationMode: registrationMode,
-      BatchID: batchId,
-      EmailVerified: '',
-      VerificationTokenHash: '',
-      VerificationExpiry: '',
-      PaymentVerified: '',
-      AccessEnabled: '',
-      EnrolmentStatus: 'PENDING_VERIFICATION',
-      LastProcessed: new Date(),
-      CertificateID: '',
-      CertificateURL: ''
-    };
-
-    Object.keys(values).forEach(key => {
-      if (!column[key]) {
-        throw new Error('Missing column: ' + key);
-      }
-
-      sheet.getRange(rowNumber, column[key]).setValue(values[key]);
-    });
-
-    SpreadsheetApp.flush();
-
-    Logger.log('Initialised enrolment: ' + enrolmentId);
-
-    return enrolmentId;
-
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * Initializes an enrolment row. The caller must hold the script lock.
+ */
+function initialiseEnrolmentWithLock_(
+  rowNumber,
+  registrationMode,
+  batchId
+) {
+  const spreadsheet = SpreadsheetApp.openById(
+    REGISTRATION_SPREADSHEET_ID
+  );
+
+  const sheet = spreadsheet.getSheetByName('Form Responses 1');
+
+  if (!sheet) {
+    throw new Error('Central Registration sheet not found.');
+  }
+
+  const headers = sheet
+    .getRange(1, 1, 1, sheet.getLastColumn())
+    .getValues()[0];
+
+  const column = {};
+
+  headers.forEach((header, index) => {
+    column[header] = index + 1;
+  });
+
+  if (rowNumber < 2 || rowNumber > sheet.getLastRow()) {
+    throw new Error('Invalid registration row: ' + rowNumber);
+  }
+
+  const enrolmentIdCell = sheet.getRange(
+    rowNumber,
+    column['EnrolmentID']
+  );
+
+  const existingId = enrolmentIdCell.getValue();
+
+  if (existingId) {
+    Logger.log('Enrolment already initialised: ' + existingId);
+    return existingId;
+  }
+
+  const enrolmentId =
+    'VS-' + Utilities.getUuid()
+      .replace(/-/g, '')
+      .substring(0, 12)
+      .toUpperCase();
+
+  const values = {
+    EnrolmentID: enrolmentId,
+    RegistrationMode: registrationMode,
+    BatchID: batchId,
+    EmailVerified: '',
+    VerificationTokenHash: '',
+    VerificationExpiry: '',
+    PaymentVerified: '',
+    EnrolmentStatus: 'PENDING_VERIFICATION',
+    LastProcessed: new Date(),
+    CertificateID: '',
+    CertificateURL: ''
+  };
+
+  Object.keys(values).forEach(key => {
+    if (!column[key]) {
+      throw new Error('Missing column: ' + key);
+    }
+
+    sheet.getRange(rowNumber, column[key]).setValue(values[key]);
+  });
+
+  SpreadsheetApp.flush();
+
+  Logger.log('Initialised enrolment: ' + enrolmentId);
+
+  return enrolmentId;
 }
 
 
@@ -159,6 +171,8 @@ function handleRegistrationSubmission(e) {
   if (!e || !e.range) {
     throw new Error('Invalid form submission event.');
   }
+
+  initialiseCourse();
 
   const sheetName = e.range.getSheet().getName();
   const rowNumber = e.range.getRow();
@@ -209,6 +223,20 @@ function handleRegistrationSubmission(e) {
 }
 
 function processGroupRegistrationSubmission(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+
+  try {
+    return processGroupRegistrationSubmissionWithLock_(e);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Processes a group submission while the caller holds the script lock.
+ */
+function processGroupRegistrationSubmissionWithLock_(e) {
   if (!e || !e.range) {
     throw new Error('Invalid form submission event.');
   }
@@ -336,7 +364,7 @@ function processGroupRegistrationSubmission(e) {
     .setValues([centralRow]);
 
   // Initialise the enrolment as a Group registration.
-  const enrolmentId = initialiseEnrolment(
+  const enrolmentId = initialiseEnrolmentWithLock_(
     targetRow,
     'Group',
     batchId

@@ -90,7 +90,6 @@ function runCourseReadinessCheck() {
     'VerificationSentAt',
     'VerificationAttempts',
     'PaymentVerified',
-    'AccessEnabled',
     'EnrolmentStatus',
     'LastProcessed',
     'CertificateID',
@@ -301,11 +300,28 @@ function runCourseReadinessCheck() {
             );
           }
 
-          const form = DriveApp.getFileById(formId);
+          const formFile = DriveApp.getFileById(formId);
 
-          if (form.getMimeType() !== MimeType.GOOGLE_FORMS) {
+          if (formFile.getMimeType() !== MimeType.GOOGLE_FORMS) {
             throw new Error(
               'Configured Form ID is not a Google Form: ' + batchId
+            );
+          }
+
+          const form = FormApp.openById(formId);
+          const destinationId = form.getDestinationId();
+
+          if (!destinationId) {
+            throw new Error(
+              'Destination spreadsheet is not set for batch ' +
+              batchId + ' (FormID: ' + formId + ').'
+            );
+          }
+
+          if (destinationId !== REGISTRATION_SPREADSHEET_ID) {
+            throw new Error(
+              'Form destination mismatch for batch ' + batchId +
+              ' (FormID: ' + formId + '). Expected the Registration spreadsheet.'
             );
           }
 
@@ -318,13 +334,29 @@ function runCourseReadinessCheck() {
             );
           }
 
-          const responseHeaders = responseSheet
-            .getRange(1, 1, 1, responseSheet.getLastColumn())
-            .getValues()[0];
+          const responseLastColumn = responseSheet.getLastColumn();
+          const responseHeaders = responseLastColumn > 0
+            ? responseSheet
+              .getRange(1, 1, 1, responseLastColumn)
+              .getValues()[0]
+            : [];
+          const requiredResponseHeaders = [
+            'Timestamp',
+            'नाव (Full Name)',
+            'मोबाईल क्रमांक (Mobile Number)',
+            'Email Address',
+            'फी भरल्याचा संदर्भ (Payment Screenshot)',
+            'Processed'
+          ];
+          const missingResponseHeaders = requiredResponseHeaders.filter(
+            header => !responseHeaders.includes(header)
+          );
 
-          if (!responseHeaders.includes('Processed')) {
+          if (missingResponseHeaders.length) {
             throw new Error(
-              'Processed column missing in ' + responseSheetName
+              'Missing response headers for batch ' + batchId +
+              ' in sheet ' + responseSheetName + ': ' +
+              missingResponseHeaders.join(', ')
             );
           }
         });

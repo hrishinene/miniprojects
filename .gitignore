@@ -17,3 +17,5 @@ dist/
 
 # Apps Script local project configuration
 vidyasetu/google_drive/.clasp.json
+.clasp.json
+.clasp.json.backup

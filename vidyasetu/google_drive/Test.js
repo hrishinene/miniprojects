@@ -51,8 +51,9 @@ function testRegistrationSpreadsheet() {
     'EmailVerified',
     'VerificationTokenHash',
     'VerificationExpiry',
+    'VerificationSentAt',
+    'VerificationAttempts',
     'PaymentVerified',
-    'AccessEnabled',
     'EnrolmentStatus',
     'LastProcessed',
     'CertificateID',
@@ -127,32 +128,6 @@ function inspectInstalledTriggers() {
       Logger.log('Source ID: ' + trigger.getTriggerSourceId());
     }
   });
-}
-
-function installRegistrationTrigger() {
-  // Remove existing triggers for this handler only.
-  const triggers = ScriptApp.getProjectTriggers();
-
-  triggers.forEach(trigger => {
-    if (
-      trigger.getHandlerFunction() ===
-      'handleRegistrationSubmission'
-    ) {
-      ScriptApp.deleteTrigger(trigger);
-      Logger.log('Removed existing registration trigger.');
-    }
-  });
-
-  // Install trigger on the actual registration spreadsheet.
-  const trigger = ScriptApp.newTrigger(
-    'handleRegistrationSubmission'
-  )
-    .forSpreadsheet(REGISTRATION_SPREADSHEET_ID)
-    .onFormSubmit()
-    .create();
-
-  Logger.log('Registration trigger installed.');
-  Logger.log('Source ID: ' + trigger.getTriggerSourceId());
 }
 
 function testVerificationToken() {
